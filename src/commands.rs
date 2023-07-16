@@ -18,6 +18,12 @@ impl Command {
     }
 }
 
+impl Drop for Command {
+    fn drop(&mut self) {
+        println!("{} command 소멸자.", self.name);
+    }
+}
+
 pub struct CommandHandler {
     pub name: String,
     commands: Vec<Command>
