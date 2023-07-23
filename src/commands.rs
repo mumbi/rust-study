@@ -20,7 +20,7 @@ impl Command {
 
 impl Drop for Command {
     fn drop(&mut self) {
-        println!("{} command 소멸자.", self.name);
+        // println!("{} command 소멸자.", self.name);
     }
 }
 
