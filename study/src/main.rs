@@ -7,6 +7,7 @@ mod week1;
 mod week2;
 mod week3;
 mod week4;
+mod week5;
 
 mod tests;
 
@@ -17,6 +18,7 @@ use week1::week1_category;
 use week2::week2_category;
 use week3::week3_category;
 use week4::week4_category;
+use week5::week5_category;
 
 
 
@@ -27,6 +29,7 @@ fn main() {
         Command::new("week 2", week2_category),
         Command::new("week 3", week3_category),
         Command::new("week_4", week4_category),
+        Command::new("week 5", week5_category),
     ].into_iter());
 
     category_handler.handle();
