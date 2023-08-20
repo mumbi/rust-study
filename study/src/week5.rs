@@ -256,7 +256,7 @@ impl Drop for Droppable {
 }
 
 fn _drop() {
-    let a = Droppable { name: "a" };
+    let mut a = Droppable { name: "a" };
     {
         let b = Droppable { name: "b" };
         {
@@ -266,7 +266,9 @@ fn _drop() {
         }
         println!("Exiting block A");
     }
-    // a.drop()
+    // a.drop();
+    // Drop::drop(&mut a);
+    drop(a);
 
     println!("Exiting main");
     
@@ -328,8 +330,8 @@ fn operator() {
     println!("{:?} - {:?} = {:?}", p1, p2, p1 - p2);
 }
 
-fn apply_with_log<TFunc: FnOnce(i32) -> i32>(func: TFunc, input: i32) -> i32 {
-// fn apply_with_log(func: impl FnOnce(i32) -> i32, input: i32) -> i32 {
+// fn apply_with_log<TFunc: FnOnce(i32) -> i32>(func: TFunc, input: i32) -> i32 {
+fn apply_with_log(func: impl FnOnce(i32) -> i32, input: i32) -> i32 {
     println!("Calling function on {input}");
     func(input)
 }
@@ -349,7 +351,7 @@ fn closure() {
         x + 3
     };
 
-    // impl_copy(add_3);
+    impl_copy(add_3);
     
     println!("add_3: {}", apply_with_log(add_3, 10));
     println!("add_3: {}", apply_with_log(add_3, 20));   // ?

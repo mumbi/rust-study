@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 dialoguer = "0.10.4"
 console = "0.15.7"
+thiserror = "1.0.47"
+anyhow = "1.0.75"
