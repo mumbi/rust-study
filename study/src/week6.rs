@@ -176,7 +176,7 @@ use anyhow::{Context, Result, bail};
 
 fn read_username_anyhow(path: &str) -> Result<String> {
     let mut username = String::with_capacity(100);
-    fs::File::open(path)
+    fs::File::open(dbg!(path))
         .with_context(|| format!("Failed to open {path}"))?
         .read_to_string(&mut username)
         .context("Failed to read")?;
@@ -278,9 +278,10 @@ union MyUnion {
 }
 
 fn _union() {
-    let u = MyUnion { i: 42 };
+    // let u = MyUnion { i: 0 };
+    let u = MyUnion { b: false };
     println!("int: {}", unsafe { u.i });
-    println!("bool: {}", unsafe { u.b });  // Undefined behavior!
+    println!("bool: {}", unsafe { u.b });
 }
 
 fn unsafe_function_call() {
