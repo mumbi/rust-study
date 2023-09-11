@@ -21,9 +21,10 @@ use std::thread;
 use std::time::Duration;
 
 fn thread() {
-    let joinHandle= thread::spawn(|| {
+    let s = String::from("Hello");
+    let joinHandle= thread::spawn(move || {
         for i in 1..10 {
-            println!("Count in thread: {i}!");
+            println!("Count in thread: {i} {}!", s);
             thread::sleep(Duration::from_millis(5));
         }
     });
@@ -152,13 +153,19 @@ fn mutex() {
     println!("v: {:?}", v.lock().unwrap());
 
     let lock = v.lock().unwrap();
+    // v.lock().unwrap();
 
     {
+        let inner_lock = lock;
+    }
+
+    {
+        println!("!");
         let mut guard = v.lock().unwrap();
         guard.push(40);
     }
 
-    println!("v: {:?}", lock);
+    // println!("v: {:?}", lock);
 
     println!("v: {:?}", v.lock().unwrap());
 }

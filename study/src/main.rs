@@ -10,6 +10,7 @@ mod week4;
 mod week5;
 mod week6;
 mod week7;
+mod week8;
 
 mod tests;
 
@@ -23,6 +24,7 @@ use week4::week4_category;
 use week5::week5_category;
 use week6::week6_category;
 use week7::week7_category;
+use week8::week8_category;
 
 use std::panic;
 
@@ -34,8 +36,9 @@ fn main() {
         Command::new("week 3", week3_category),
         Command::new("week_4", week4_category),
         Command::new("week 5", week5_category),
-        Command::new("week_6", week6_category),
-        Command::new("week_7", week7_category),
+        Command::new("week 6", week6_category),
+        Command::new("week 7", week7_category),
+        Command::new("week 8", week8_category),
     ].into_iter());
 
 
