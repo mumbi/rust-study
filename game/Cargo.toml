@@ -6,6 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+futures = "0.3.28"
 dialoguer = "0.10.4"
 console = "0.15.7"
-tokio = { version = "1.32.0", features = ["rt-multi-thread"] } 
+tokio = { version = "1.32.0", features = ["full"] }
+log4rs = "1.2.0"
+log = "0.4.20"
+mediator = { version = "0.2.2", features = ["async"] }
+async-trait = "0.1.73"
+anyhow = "1.0.75"
+clap = { version = "4.4.3", features = ["derive"] }

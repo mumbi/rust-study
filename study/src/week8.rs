@@ -38,22 +38,24 @@ use tokio::time;
 
 async fn count_to_task(count: i32) {
     for i in 1..=count {
-        println!("Count in task: {i}!");
+        println!("Count in task: {i}, threadid: {:?}!", std::thread::current().id());
+
         time::sleep(time::Duration::from_millis(5)).await;
     }
 }
 
 #[tokio::main]
 async fn tokio() {
-    let join_handle = tokio::spawn(count_to_task(10));
-    // count_to_task(10).await;
+    println!("main thread id: {:?}", std::thread::current().id());
+    // let join_handle = tokio::spawn(count_to_task(10));
+    count_to_task(10).await;
 
     for i in 1..5 {
         println!("Main task: {i}");
         time::sleep(time::Duration::from_millis(5)).await;
     }
 
-    join_handle.await;
+    // join_handle.await;
 }
 
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
@@ -128,23 +130,38 @@ use tokio::sync::mpsc::{self, Receiver};
 
 async fn ping_handler(mut input: Receiver<()>) {
     let mut count: usize = 0;
-
-    while let Some(_) = input.recv().await {
-        count += 1;
-        println!("Received {count} pings so far.");
+    
+    loop {
+        match input.recv().await {
+            Some(_) => {
+                count += 1;
+                println!("Received {count} pings so far.");
+            },
+            None => {
+                println!("none");
+                break;
+            }
+        }
     }
+
+    // while let Some(_) = input.recv().await {
+    //     count += 1;
+    //     println!("Received {count} pings so far.");
+    // }
 
     println!("ping_handler complete");
 }
 
 #[tokio::main]
 async fn async_channel() {
-    let (sender, receiver) = mpsc::channel(3);
+    let (sender, receiver) = mpsc::channel(32);
     let ping_handler_task = tokio::spawn(ping_handler(receiver));
     for i in 0..10 {
         sender.send(()).await.expect("Failed to send ping.");
         println!("Sent {} pings so far.", i + 1);
     }
+
+    // let sender2 = sender.clone();
 
     drop(sender);
     ping_handler_task.await.expect("Something went wrong in ping handler task.");
@@ -155,8 +172,10 @@ use futures::{future, FutureExt};
 use reqwest;
 use std::borrow::BorrowMut;
 use std::collections::HashMap;
+use std::thread::Thread;
 
 async fn size_of_page(url: &str) -> Result<usize> {
+    println!("sizeofpage");
     let resp = reqwest::get(url).await?;
     Ok(resp.text().await?.len())
 }
@@ -170,10 +189,12 @@ async fn join() {
         "BAD_URL",
     ];
     let futures_iter = urls.into_iter().map(size_of_page);
-    let results = future::join_all(futures_iter).await;
-    let page_sizes_dict: HashMap<&str, Result<usize>> =
-        urls.into_iter().zip(results.into_iter()).collect();
-    println!("{:?}", page_sizes_dict);
+    let results = future::join_all(futures_iter);
+    // let page_sizes_dict: HashMap<&str, Result<usize>> =
+    //     urls.into_iter().zip(results.into_iter()).collect();
+    // println!("{:?}", page_sizes_dict);
+
+    std::thread::sleep(Duration::from_secs(10));
 }
 
 use tokio::time::{sleep, Duration};
@@ -286,12 +307,14 @@ async fn worker(mut work_queue: mpsc::Receiver<Work>) {
     let mut iterations = 0;
     // let mut timeout_fut = sleep(Duration::from_millis(100));
     let mut timeout_fut;
+    // let mut timeout_fut = Box::pin(sleep(Duration::from_millis(100)));
 
     loop {
         timeout_fut = Box::pin(sleep(Duration::from_millis(100)));
 
         tokio::select! {
             _ = &mut timeout_fut => { println!("timeout") },
+            // _ = sleep(Duration::from_millis(50)) => {},
             Some(work) = work_queue.recv() => {
                 sleep(Duration::from_millis(10)).await; // Pretend to work.
                 work.respond_on
@@ -307,6 +330,7 @@ async fn worker(mut work_queue: mpsc::Receiver<Work>) {
 // 작업을 요청하고 작업이 완료될 때까지 기다리는 요청자입니다.
 async fn do_work(work_queue: &mpsc::Sender<Work>, input: u32) -> u32 {
     let (tx, rx) = oneshot::channel();
+    sleep(Duration::from_millis(100)).await;
     work_queue
         .send(Work {
             input,
@@ -321,7 +345,7 @@ async fn do_work(work_queue: &mpsc::Sender<Work>, input: u32) -> u32 {
 async fn pin() {
     let (tx, rx) = mpsc::channel(10);
     spawn(worker(rx));
-    for i in 0..100 {
+    for i in 0..10 {
         let resp = do_work(&tx, i).await;
         println!("work result for iteration {i}: {resp}");
     }
